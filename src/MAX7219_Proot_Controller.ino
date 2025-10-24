@@ -2,7 +2,7 @@
 #include <Animation_Controller.h>
 #include <Adafruit_NeoPixel.h>
 #include <Proto_Face_Frames.h>
-// LED Variables
+
 const uint8_t DIN = 2,
               CS = 3,
               CLK = 4,
@@ -47,7 +47,6 @@ void setup()
 }
 void loop()
 {
-
   blink.update();
 
   if (millis() - lastUpdate < delayVal)

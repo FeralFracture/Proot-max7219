@@ -1,13 +1,12 @@
 #include "Led_Controller.h"
 
-Led_Controller::Led_Controller(int dataPin, int csPin, int clkPin, int numDevices, int intensity, bool initializeToDefault)
+Led_Controller::Led_Controller(uint8_t dataPin, uint8_t csPin, uint8_t clkPin, uint8_t numDevices, uint8_t intensity, bool initializeToDefault)
 {
 	if (numDevices <= 0 || numDevices > 16)
-		numDevices = 16;		//clamp the value to 16 if out of bounds
+		numDevices = 16;		
 	deviceCount = numDevices;
 	fallbackIntensity = intensity;
 
-	//Initialize chosen pins for data connections
 	SPI_MOSI = dataPin;
 	SPI_CLK = clkPin;
 	SPI_CS = csPin;
@@ -32,16 +31,16 @@ Led_Controller::Led_Controller(int dataPin, int csPin, int clkPin, int numDevice
 
 	for (int i = 0; i < deviceCount; i++) {
 		spiTransfer(i, OP_DISPLAYTEST, 0);
-		setScanLimit(i, 7);					//scanlimit is set to max on startup
-		spiTransfer(i, OP_DECODEMODE, 0);	//decode is done in source
+		setScanLimit(i, 7);					
+		spiTransfer(i, OP_DECODEMODE, 0);	
 		clearDisplay(i);
-		shutdown(i, true);					//we go into shutdown-mode on startup
+		shutdown(i, true);
 	}
 	if (initializeToDefault)
 		reset();
 }
 
-void Led_Controller::setModule(int addr, face_section sect, int segment, bool flip) {
+void Led_Controller::setModule(uint8_t addr, face_section sect, uint8_t segment, bool flip) {
 	uint64_t frame;
 	switch (sect) {
 	case MOUTH:
@@ -56,8 +55,8 @@ void Led_Controller::setModule(int addr, face_section sect, int segment, bool fl
 	setModule(addr, frame, flip);
 }
 
-void Led_Controller::setModule(int addr, uint64_t frame, bool flip) {
-	for (int i = 0; i < 8; i++) {
+void Led_Controller::setModule(uint8_t addr, uint64_t frame, bool flip) {
+	for (uint8_t i = 0; i < 8; i++) {
 		uint8_t data = (frame >> (i * 8)) & 0xFF;
 		if (frameBuffer[addr][7-i] != data) {
 			if (flip)
@@ -68,8 +67,8 @@ void Led_Controller::setModule(int addr, uint64_t frame, bool flip) {
 }
 
 void Led_Controller::latchDisplays() {
-	for (int row = 0; row < 8; row++) {
-		for (int addr = 0; addr < deviceCount; addr++) {
+	for (uint8_t row = 0; row < 8; row++) {
+		for (uint8_t addr = 0; addr < deviceCount; addr++) {
 			// Compare current frame buffer with the next frame buffer and update accordingly per module
 			if (frameBuffer[addr][row] == newFrameBuffer[addr][row])
 				continue;
@@ -81,13 +80,13 @@ void Led_Controller::latchDisplays() {
 		spiOut();
 	}
 }
-void Led_Controller::setIntensity(int addr, int intensity) {
+void Led_Controller::setIntensity(uint8_t addr, uint8_t intensity) {
 	if (intensity < 0 || intensity >= 16) {
 		return;
 	}
 	if (addr == -1)
 	{
-		for (int i = 0; i <= deviceCount; i++) {
+		for (uint8_t i = 0; i <= deviceCount; i++) {
 			spiTransfer(i, OP_INTENSITY, intensity);
 		}
 		return;
@@ -97,7 +96,7 @@ void Led_Controller::setIntensity(int addr, int intensity) {
 	spiTransfer(addr, OP_INTENSITY, intensity);
 }
 
-void Led_Controller::spiTransfer(int addr, volatile byte opcode, volatile byte data) {
+void Led_Controller::spiTransfer(uint8_t addr, volatile byte opcode, volatile byte data) {
 	spidata[addr * 2 + 1] = opcode;
 	spidata[addr * 2] = data;
 	spiOut();
@@ -105,28 +104,28 @@ void Led_Controller::spiTransfer(int addr, volatile byte opcode, volatile byte d
 
 void Led_Controller::spiOut() {
 	digitalWrite(SPI_CS, LOW);			//enable the line 
-	for (int i = MAX_BYTES; i > 0; i--)	//Now shift out the data 
+	for (uint16_t i = MAX_BYTES; i > 0; i--)	//shift out the data 
 		shiftOut(SPI_MOSI, SPI_CLK, MSBFIRST, spidata[i - 1]);
-	digitalWrite(SPI_CS, HIGH);			//latch the data onto the display
+	digitalWrite(SPI_CS, HIGH);			//latch data to display
 }
 
 int Led_Controller::getDeviceCount() {
 	return deviceCount;
 }
 
-void Led_Controller::setScanLimit(int addr, int limit) {
+void Led_Controller::setScanLimit(uint8_t addr, uint8_t limit) {
 	if (addr < 0 || addr >= deviceCount)
 		return;
 	if (limit >= 0 && limit < 8)
 		spiTransfer(addr, OP_SCANLIMIT, limit);
 }
 
-void Led_Controller::clearDisplay(int addr) {
-	int offset;
+void Led_Controller::clearDisplay(uint8_t addr) {
+	uint16_t offset = 0;
 	if (addr == -1) {
-		for (int module = 0; module <= deviceCount; module++) {
+		for (uint8_t module = 0; module <= deviceCount; module++) {
 			offset = module * 8;
-			for (int row = 0; row < 8; row++) {
+			for (uint8_t row = 0; row < 8; row++) {
 				frameBuffer[module][row] = 0;
 				newFrameBuffer[module][row] = frameBuffer[module][row];
 				spiTransfer(module, row + 1, 0);
@@ -137,17 +136,17 @@ void Led_Controller::clearDisplay(int addr) {
 	if (addr < 0 || addr >= deviceCount)
 		return;
 	offset = addr * 8;
-	for (int row = 0; row < 8; row++) {
+	for (uint8_t row = 0; row < 8; row++) {
 		frameBuffer[addr][row] = 0;
 		newFrameBuffer[addr][row] = frameBuffer[addr][row];
 		spiTransfer(addr, row + 1, 0);
 	}
 }
 
-void Led_Controller::shutdown(int addr, bool b) {
+void Led_Controller::shutdown(uint8_t addr, bool b) {
 	if (addr == -1)
 	{
-		for (int module = 0; module <= deviceCount; module++) {
+		for (uint8_t module = 0; module <= deviceCount; module++) {
 			spiTransfer(module, OP_SHUTDOWN, b ? 0 : 1);
 		}
 		return;
@@ -159,13 +158,13 @@ void Led_Controller::shutdown(int addr, bool b) {
 }
 
 void Led_Controller::reset() {
-	for (int module = 0; module < deviceCount; module++) {
+	for (uint8_t module = 0; module < deviceCount; module++) {
 		spiTransfer(module, OP_DISPLAYTEST, 0);
 		setScanLimit(module, 7);
 		spiTransfer(module, OP_DECODEMODE, 0);
 		clearDisplay(module);
 		shutdown(module, true);
-		for (int row = 0; row < 8; row++) {
+		for (uint8_t row = 0; row < 8; row++) {
 			frameBuffer[module][row] = 0x00;
 			newFrameBuffer[module][row] = 0x00;
 		}
@@ -183,7 +182,7 @@ void Led_Controller::reset() {
 			sect = MOUTH;
 		}
 
-		int segment;
+		uint8_t segment;
 		switch (module) {
 		case 1: case 3: case 10: case 12:
 			segment = 1;

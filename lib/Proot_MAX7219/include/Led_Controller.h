@@ -74,27 +74,27 @@ private:
 	uint8_t **newFrameBuffer;
 	byte spidata[32];
 	byte status[128];
-	int SPI_MOSI,
-		SPI_CLK,
-		SPI_CS,
-		deviceCount,
-		fallbackIntensity;
-	void spiTransfer(int addr, byte opcode, byte data);
+	uint8_t SPI_MOSI,
+			SPI_CLK,
+			SPI_CS,
+			deviceCount,
+			fallbackIntensity;
+	void spiTransfer(uint8_t addr, byte opcode, byte data);
 	void spiOut();
 
 public:
 	bool autoLatch = false;
 
-	Led_Controller(int dataPin, int csPin, int clkPin, int numDevices = 1, int intensity = 1, bool initializeToDefault = false);
+	Led_Controller(uint8_t dataPin, uint8_t csPin, uint8_t clkPin, uint8_t numDevices = 1, uint8_t intensity = 1, bool initializeToDefault = false);
 
-	void setModule(int addr, face_section sect, int segment = 0, bool flip = false);
-	void setModule(int addr, uint64_t frame, bool flip = false);
+	void setModule(uint8_t addr, face_section sect, uint8_t segment = 0, bool flip = false);
+	void setModule(uint8_t addr, uint64_t frame, bool flip = false);
 	void latchDisplays();
 	void reset();
 	int getDeviceCount();
-	void setScanLimit(int addr, int limit);
-	void setIntensity(int addr, int intensity);
-	void shutdown(int addr, bool status);
-	void clearDisplay(int addr);
+	void setScanLimit(uint8_t addr, uint8_t limit);
+	void setIntensity(uint8_t addr, uint8_t intensity);
+	void shutdown(uint8_t addr, bool status);
+	void clearDisplay(uint8_t addr);
 };
 #endif
