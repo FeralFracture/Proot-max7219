@@ -1,16 +1,16 @@
 #include "Animation_Controller.h"
 
-AnimationBase::AnimationBase(Led_Controller &controller, const uint64_t *frameData, bool bounce)
-    : led_controller(controller), frameData(frameData), bounce(bounce) {}
+AnimationBase::AnimationBase(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce)
+    : led_controller(controller), frameData(frameData), frameCount(frameCount), frameInterval(frameInterval), bounce(bounce) {}
 
 void AnimationBase::startAnim()
 {
     currentFrame = 0;
 }
 
-void AnimationBase::setFrameDelay(uint16_t delay)
+void AnimationBase::setFrameInterval(uint16_t interval)
 {
-    frameInterval = delay;
+    frameInterval = interval;
 }
 
 void AnimationBase::setFrameData(const uint64_t *newFrameData, uint8_t newFrameCount, bool bounce)
@@ -31,20 +31,19 @@ void AnimationBase::update()
 
     if (currentFrame == -1)
     {
-        if (bouncing)
-        {
-            bouncing = false;
-            reset();
-        }
         return;
     }
 
     if ((bounce && currentFrame >= frameCount) || bouncing)
     {
-
+        currentFrame--;
+        if (currentFrame < 0)
+        {
+            reset();
+            return;
+        }
         bouncing = true;
         animate();
-        currentFrame--;
         return;
     }
     else if (currentFrame >= frameCount)
@@ -57,17 +56,14 @@ void AnimationBase::update()
     currentFrame++;
 }
 
-EyeAnimator::EyeAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, bool bounce) :
-AnimationBase(controller, frameData, bounce){
-    this->frameCount = frameCount;
+EyeAnimator::EyeAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce)
+{
 }
-MouthAnimator::MouthAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, bool bounce) :
-AnimationBase(controller, frameData, bounce){
-    this->frameCount = frameCount;
+MouthAnimator::MouthAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce)
+{
 }
-NoseAnimator::NoseAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, bool bounce) :
-AnimationBase(controller, frameData, bounce){
-    this->frameCount = frameCount;
+NoseAnimator::NoseAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce)
+{
 }
 void EyeAnimator::animate()
 {

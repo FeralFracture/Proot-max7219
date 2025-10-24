@@ -20,7 +20,7 @@ int countdown = 0;
 unsigned long lastUpdate = 0,
               delayVal = 1;
 Led_Controller lcp(DIN, CS, CLK, MODULE_COUNT, INTENSITY, false);
-EyeAnimator blink(lcp, default_eye_blink, 5);
+EyeAnimator blink(lcp, default_eye_blink, 5, 1, true);
 void setup()
 {
   delay(500);
@@ -43,7 +43,7 @@ void setup()
 
   strip_B.setBrightness(40 /*255*/);
   countdown = 0;
-  blink.setFrameDelay(1);
+  // blink.setFrameInterval(1);
 }
 void loop()
 {
@@ -58,6 +58,6 @@ void loop()
   if (countdown < 0)
   {
     blink.startAnim();
-    countdown = random(7500,22500);
+    countdown = random(7500, 22500);
   }
 }

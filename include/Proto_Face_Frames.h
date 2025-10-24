@@ -1,6 +1,9 @@
+#ifndef PROTO_FACE_FRAMES_H
+#define PROTO_FACE_FRAMES_H
+#pragma once
 #include <Arduino.h>
 
-extern const uint64_t mouth[] PROGMEM = {
+inline const uint64_t mouth[] PROGMEM = {
 	// default
 	0x000080e0ff73390f, 0xe0fc5f0301000000, 0x03070e1c78f0e080, 0xc0e070381e0f0701,
 	// Alt 1
@@ -20,7 +23,7 @@ extern const uint64_t mouth[] PROGMEM = {
 	// Alt 2 Frame 7
 	0x00000000c0f0d8f8, 0x0000f0fc1f070100, 0x00000ffffc000000, 0x2030180e07000000};
 
-extern const uint64_t default_eye_blink[] PROGMEM = {
+inline const uint64_t default_eye_blink[] PROGMEM = {
 	// Close Frame 1
 	0x00e0f8fcfefff800,
 	0x00073f7f7f070000,
@@ -37,7 +40,9 @@ extern const uint64_t default_eye_blink[] PROGMEM = {
 	0x00000000f8000000,
 	0x000000003f000000};
 
-extern const uint64_t nose[] PROGMEM = {
+inline const uint64_t nose[] PROGMEM = {
 	// Default
 	0x0000010303030f3f,
 };
+
+#endif

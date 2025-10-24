@@ -1,16 +1,7 @@
 #ifndef LED_CONTROLLER_H
 #define LED_CONTROLLER_H
 #include <Arduino.h>
-
-#define FRAME(index, section) (                                           \
-	((uint64_t)pgm_read_byte(((uint8_t *)(section + index)) + 7) << 56) | \
-	((uint64_t)pgm_read_byte(((uint8_t *)(section + index)) + 6) << 48) | \
-	((uint64_t)pgm_read_byte(((uint8_t *)(section + index)) + 5) << 40) | \
-	((uint64_t)pgm_read_byte(((uint8_t *)(section + index)) + 4) << 32) | \
-	((uint64_t)pgm_read_byte(((uint8_t *)(section + index)) + 3) << 24) | \
-	((uint64_t)pgm_read_byte(((uint8_t *)(section + index)) + 2) << 16) | \
-	((uint64_t)pgm_read_byte(((uint8_t *)(section + index)) + 1) << 8) |  \
-	((uint64_t)pgm_read_byte(((uint8_t *)(section + index)) + 0)))
+#include <progmem_reader.h>
 
 // the opcodes for the MAX7221 and MAX7219
 #define OP_NOOP 0
