@@ -5,50 +5,52 @@ AnimationBase::AnimationBase(Led_Controller &controller, const uint64_t *frameDa
 
 void AnimationBase::startAnim()
 {
-    currentFrame = 0;
+    this->currentFrame = 0;
 }
 
 void AnimationBase::setFrameInterval(uint16_t interval)
 {
-    frameInterval = interval;
+    this->frameInterval = interval;
 }
 
 void AnimationBase::setFrameData(const uint64_t *newFrameData, uint8_t newFrameCount, bool bounce)
 {
     frameData = newFrameData;
     frameCount = newFrameCount;
-    bounce = bounce;
+    this->bounce = bounce;
 }
 
 void AnimationBase::update()
 {
-    if (millis() - lastUpdate < frameInterval)
+    if (millis() - this->lastUpdate < this->frameInterval)
     {
         return;
     }
 
-    lastUpdate = millis();
-
-    if (currentFrame == -1)
+    this->lastUpdate = millis();
+    
+    if (this->currentFrame == -1)
     {
         return;
     }
 
-    if ((bounce && currentFrame >= frameCount) || bouncing)
+    if ((this->bounce && this->currentFrame >= this->frameCount) || this->bouncing)
     {
-        currentFrame--;
-        if (currentFrame < 0)
+        this->currentFrame--;
+        if (this->currentFrame < 0)
         {
+            this->bouncing = false;
             reset();
             return;
         }
-        bouncing = true;
+        this->bouncing = true;
         animate();
         return;
     }
-    else if (currentFrame >= frameCount)
+    else if (this->currentFrame >= this->frameCount)
     {
-        currentFrame = -1;
+        this->bouncing = false;
+        this->currentFrame = -1;
         reset();
         return;
     }
