@@ -39,6 +39,12 @@ Led_Controller::Led_Controller(uint8_t dataPin, uint8_t csPin, uint8_t clkPin, u
 	if (initializeToDefault)
 		reset();
 }
+ uint8_t Led_Controller::reverse8(uint8_t x) {
+    x = ((x & 0xF0) >> 4) | ((x & 0x0F) << 4);
+    x = ((x & 0xCC) >> 2) | ((x & 0x33) << 2);
+    x = ((x & 0xAA) >> 1) | ((x & 0x55) << 1);
+    return x;
+}
 
 void Led_Controller::setModule(uint8_t addr, face_section sect, uint8_t segment, bool flip) {
 	uint64_t frame;
@@ -60,7 +66,7 @@ void Led_Controller::setModule(uint8_t addr, uint64_t frame, bool flip) {
 		uint8_t data = (frame >> (i * 8)) & 0xFF;
 		if (frameBuffer[addr][7-i] != data) {
 			if (flip)
-				data = pgm_read_byte(&REVERSE_LOOKUP_TABLE[data]);
+				data = reverse8(data);
 			newFrameBuffer[addr][7-i] = data;
 		}
 	}
