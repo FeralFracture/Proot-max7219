@@ -17,6 +17,7 @@ const uint8_t DIN_PIN = 2,
 
               BUTTON_1 = 7,
               BUTTON_2 = 8,
+              BUTTON_3 = 13,
 
               FAN_SPEEDS[] = {255, 215, 180, 0};
 
@@ -44,6 +45,7 @@ void setup()
   pinMode(FAN_B_PIN, OUTPUT);
   pinMode(BUTTON_1, INPUT_PULLUP);
   pinMode(BUTTON_2, INPUT_PULLUP);
+  pinMode(BUTTON_3, INPUT_PULLUP);
   Serial.begin(9600);
   analogWrite(FAN_A_PIN, FAN_SPEEDS[fan_speed_1]);
   analogWrite(FAN_B_PIN, FAN_SPEEDS[fan_speed_2]);
@@ -67,76 +69,92 @@ void loop()
     return;
   // Serial.println(blinkCountdown);
   lastUpdate = millis();
-  // Serial.print(".");
+  //Serial.print(".");
   blinkCountdown--;
   if (buttonCooldown > 0)
   {
     buttonCooldown--;
   }
-  if (digitalRead(BUTTON_1) == LOW && buttonCooldown <= 0)
+  if (buttonCooldown <= 0)
   {
-
-    buttonCooldown = 700;
-    fan_speed_1++;
-    if (fan_speed_1 >= sizeof(FAN_SPEEDS))
+    uint8_t buttonData[] = {
+        digitalRead(BUTTON_1),
+        digitalRead(BUTTON_2),
+        digitalRead(BUTTON_3)};
+    if (buttonData[0] == LOW || buttonData[1] == LOW || buttonData[2] == LOW)
     {
-      fan_speed_1 = 0;
+      buttonCooldown = 700;
     }
-    analogWrite(FAN_A_PIN, FAN_SPEEDS[fan_speed_1]);
-    Serial.print("Fan 1: ");
-    Serial.println(FAN_SPEEDS[fan_speed_1]);
-
-    ++face_selection %= 5;
-    switch (face_selection)
+    else
     {
-    case 1:
-      eyeAnim.setFrameData(happy_eye_blink, 6, true, false);
-      eyeAnim.setFrameInterval(45);
-      mouthController.setFrameData(smile_mouth, 1, false, false);
-      mouthController.startAnim();
-      delay_multiplier = 1;
-      break;
-    case 2:
-      eyeAnim.setFrameData(focused_eye_blink, 6, true, false);
-      eyeAnim.setFrameInterval(30);
-      mouthController.setFrameData(closed_mouth, 1, false, false);
-      mouthController.startAnim();
-      delay_multiplier = 1.2;
-      break;
-    case 3:
-      eyeAnim.setFrameData(glare_eye_blink, 6, true, false);
-      eyeAnim.setFrameInterval(60);
-      mouthController.setFrameData(persed_mouth, 1, false, false);
-      mouthController.startAnim();
-      delay_multiplier = 1.75;
-      break;
-    case 4:
-      eyeAnim.setFrameData(x_eye_blink, 12, false, false);
-      eyeAnim.setFrameInterval(150);
-      mouthController.setFrameData(persed_mouth, 1, false, false);
-      mouthController.startAnim();
-      delay_multiplier = 2.1;
-      break;
-    default:
-      eyeAnim.setFrameData(default_eye_blink, 5, true, true);
-      eyeAnim.setFrameInterval(1);
-      mouthController.setFrameData(smile_mouth, 0, false, true);
-      mouthController.startAnim();
+      return;
     }
-    blinkCountdown = -1;
-  }
-  else if (digitalRead(BUTTON_2) == LOW && buttonCooldown <= 0)
-  {
-
-    buttonCooldown = 700;
-    fan_speed_2++;
-    if (fan_speed_2 >= sizeof(FAN_SPEEDS))
+    if (buttonData[0] == LOW)
     {
-      fan_speed_2 = 0;
+      //Serial.println("Fan 1 press");
+      fan_speed_1++;
+      if (fan_speed_1 >= sizeof(FAN_SPEEDS))
+      {
+        fan_speed_1 = 0;
+      }
+      analogWrite(FAN_A_PIN, FAN_SPEEDS[fan_speed_1]);
+      // Serial.print("Fan 1: ");
+      // Serial.println(FAN_SPEEDS[fan_speed_1]);
     }
-    analogWrite(FAN_B_PIN, FAN_SPEEDS[fan_speed_2]);
-    Serial.print("Fan 2: ");
-    Serial.println(FAN_SPEEDS[fan_speed_2]);
+    else if (buttonData[1] == LOW)
+    {
+      //Serial.println("Fan press 2");
+      fan_speed_2++;
+      if (fan_speed_2 >= sizeof(FAN_SPEEDS))
+      {
+        fan_speed_2 = 0;
+      }
+      analogWrite(FAN_B_PIN, FAN_SPEEDS[fan_speed_2]);
+      // Serial.print("Fan 2: ");
+      // Serial.println(FAN_SPEEDS[fan_speed_2]);
+    }
+    else if (buttonData[2] == LOW)
+    {
+      //Serial.println("Face Button Press");
+      ++face_selection %= 5;
+      switch (face_selection)
+      {
+      case 1:
+        eyeAnim.setFrameData(happy_eye_blink, 6, true, false);
+        eyeAnim.setFrameInterval(45);
+        mouthController.setFrameData(smile_mouth, 1, false, false);
+        mouthController.startAnim();
+        delay_multiplier = 1;
+        break;
+      case 2:
+        eyeAnim.setFrameData(focused_eye_blink, 6, true, false);
+        eyeAnim.setFrameInterval(30);
+        mouthController.setFrameData(closed_mouth, 1, false, false);
+        mouthController.startAnim();
+        delay_multiplier = 1.2;
+        break;
+      case 3:
+        eyeAnim.setFrameData(glare_eye_blink, 6, true, false);
+        eyeAnim.setFrameInterval(60);
+        mouthController.setFrameData(persed_mouth, 1, false, false);
+        mouthController.startAnim();
+        delay_multiplier = 1.75;
+        break;
+      case 4:
+        eyeAnim.setFrameData(x_eye_blink, 12, false, false);
+        eyeAnim.setFrameInterval(150);
+        mouthController.setFrameData(persed_mouth, 1, false, false);
+        mouthController.startAnim();
+        delay_multiplier = 2.25;
+        break;
+      default:
+        eyeAnim.setFrameData(default_eye_blink, 5, true, true);
+        eyeAnim.setFrameInterval(1);
+        mouthController.setFrameData(smile_mouth, 0, false, true);
+        mouthController.startAnim();
+      }
+      blinkCountdown = -1;
+    }
   }
 
   if (blinkCountdown < 0)

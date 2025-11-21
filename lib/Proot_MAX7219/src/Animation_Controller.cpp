@@ -5,7 +5,7 @@ AnimationBase::AnimationBase(Led_Controller &controller, const uint64_t *frameDa
 
 void AnimationBase::startAnim()
 {
-    Serial.println("STARTING");
+    
     if (useDefaultIdle)
     {
         this->currentFrame = 0;
@@ -14,7 +14,6 @@ void AnimationBase::startAnim()
     {
         this->currentFrame = 1;
     }
-    Serial.println(currentFrame);
 }
 
 void AnimationBase::setFrameInterval(uint16_t interval)
