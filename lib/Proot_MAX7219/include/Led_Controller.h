@@ -61,7 +61,7 @@ public:
 	bool autoLatch = false;
 
 	Led_Controller(uint8_t dataPin, uint8_t csPin, uint8_t clkPin, uint8_t numDevices = 1, uint8_t intensity = 1, bool initializeToDefault = false);
-	uint8_t Led_Controller::reverse8(uint8_t x);
+	uint8_t reverse8(uint8_t x);
 	void setModule(uint8_t addr, face_section sect, uint8_t segment = 0, bool flip = false);
 	void setModule(uint8_t addr, uint64_t frame, bool flip = false);
 	void latchDisplays();

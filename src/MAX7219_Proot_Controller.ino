@@ -96,7 +96,7 @@ void loop()
   }
   if (buttonCooldown <= 0)
   {
-    uint8_t buttonData[] = {
+    int buttonData[] = {
         digitalRead(BUTTON_1),
         digitalRead(BUTTON_2),
         digitalRead(BUTTON_3)};
