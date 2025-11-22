@@ -1,11 +1,14 @@
 #include "Animation_Controller.h"
 
-AnimationBase::AnimationBase(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce, bool useDefaultIdle)
-    : led_controller(controller), frameData(frameData), frameCount(frameCount), frameInterval(frameInterval), bounce(bounce), useDefaultIdle(useDefaultIdle) {}
-
+AnimationBase::AnimationBase(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce, bool useDefaultIdle, uint8_t loop_times)
+    : led_controller(controller), frameData(frameData), frameCount(frameCount), frameInterval(frameInterval), bounce(bounce), useDefaultIdle(useDefaultIdle), loop_times(loop_times) {}
+bool AnimationBase::isAnimating()
+{
+    return this->isAnimatingBool;
+}
 void AnimationBase::startAnim()
 {
-    
+
     if (useDefaultIdle)
     {
         this->currentFrame = 0;
@@ -21,12 +24,13 @@ void AnimationBase::setFrameInterval(uint16_t interval)
     this->frameInterval = interval;
 }
 
-void AnimationBase::setFrameData(const uint64_t *newFrameData, uint8_t newFrameCount, bool bounce, bool useDefaultIdle)
+void AnimationBase::setFrameData(const uint64_t *newFrameData, uint8_t newFrameCount, bool bounce, bool useDefaultIdle, uint8_t loop_times)
 {
     frameData = newFrameData;
     frameCount = newFrameCount;
     this->bounce = bounce;
     this->useDefaultIdle = useDefaultIdle;
+    this->loop_times = loop_times;
 }
 
 void AnimationBase::update()
@@ -40,20 +44,31 @@ void AnimationBase::update()
 
     if (this->currentFrame == -1)
     {
+        isAnimatingBool = false;
         return;
     }
-
+    isAnimatingBool = true;
     if ((this->bounce && this->currentFrame >= this->frameCount) || this->bouncing)
     {
         this->currentFrame--;
         if (this->currentFrame < 0)
         {
             this->bouncing = false;
+            if (this->loop_i < this->loop_times)
+            {
+                this->loop_i++;
+                this->currentFrame = 0;
+                animate();
+                this->currentFrame = 1;
+                return;
+            }
+            this->loop_i = 0;
             if (this->useDefaultIdle)
             {
                 reset();
             }
-            else {
+            else
+            {
                 this->currentFrame = 0;
                 animate();
                 this->currentFrame = -1;
@@ -67,6 +82,15 @@ void AnimationBase::update()
     else if (this->currentFrame >= this->frameCount)
     {
         this->bouncing = false;
+        if (this->loop_i < this->loop_times)
+        {
+            this->loop_i++;
+            this->currentFrame = 0;
+            animate();
+            this->currentFrame = 1;
+            return;
+        }
+        this->loop_i = 0;
         if (this->useDefaultIdle)
         {
             this->currentFrame = -1;
@@ -81,16 +105,16 @@ void AnimationBase::update()
         return;
     }
     animate();
-    currentFrame++;
+    this->currentFrame++;
 }
 
-EyeAnimator::EyeAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce, bool useDefaultIdle) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce, useDefaultIdle)
+EyeAnimator::EyeAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce, bool useDefaultIdle, uint8_t loop_times) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce, useDefaultIdle, loop_times)
 {
 }
-MouthAnimator::MouthAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce, bool useDefaultIdle) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce, useDefaultIdle)
+MouthAnimator::MouthAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce, bool useDefaultIdle, uint8_t loop_times) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce, useDefaultIdle, loop_times)
 {
 }
-NoseAnimator::NoseAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce, bool useDefaultIdle) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce, useDefaultIdle)
+NoseAnimator::NoseAnimator(Led_Controller &controller, const uint64_t *frameData, uint8_t frameCount, uint16_t frameInterval, bool bounce, bool useDefaultIdle, uint8_t loop_times) : AnimationBase(controller, frameData, frameCount, frameInterval, bounce, useDefaultIdle, loop_times)
 {
 }
 void EyeAnimator::animate()
@@ -130,9 +154,9 @@ void MouthAnimator::reset()
     led_controller.setModule(3, MOUTH, 1);
     led_controller.setModule(4, MOUTH, 2);
     led_controller.setModule(5, MOUTH, 3);
-    led_controller.setModule(11, MOUTH, 3, true);
-    led_controller.setModule(10, MOUTH, 2, true);
-    led_controller.setModule(9, MOUTH, 1, true);
-    led_controller.setModule(8, MOUTH, 0, true);
+    led_controller.setModule(11, MOUTH, 0, true);
+    led_controller.setModule(10, MOUTH, 1, true);
+    led_controller.setModule(9, MOUTH, 2, true);
+    led_controller.setModule(8, MOUTH, 3, true);
     led_controller.latchDisplays();
 }
