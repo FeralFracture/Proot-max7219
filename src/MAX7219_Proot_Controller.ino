@@ -164,7 +164,7 @@ void loop()
         default:
           eyeAnim.setFrameData(default_eye_blink, 5, true, true);
           eyeAnim.setFrameInterval(1);
-          mouthController.setFrameData(nullptr);
+          mouthController.setFrameData(dead_mouth);
           mouthController.startAnim();
           delay_multiplier = 1;
         }
